@@ -1,8 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// HIIS-UAE Health Integrity Intelligence System Database Schema
+// UAE Health Insurance Claim Verification and Fraud Detection System
 
 generator client {
   provider = "prisma-client-js"
@@ -13,20 +10,276 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Core System Models
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  role          UserRole @default(USER)
+  organization  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  auditLogs     AuditLog[]
+  systemConfigs SystemConfig[]
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum UserRole {
+  ADMIN
+  REGULATOR
+  PAYER_ADMIN
+  SIU_AGENT
+  PROVIDER
+  USER
+}
+
+// Claims and Processing
+model Claim {
+  id                  String        @id @default(cuid())
+  claimId             String        @unique
+  memberId            String
+  providerId          String
+  payerId             String
+  claimAmount         Float
+  submissionDate      DateTime
+  serviceDate         DateTime
+  status              ClaimStatus   @default(PENDING)
+  riskScore           Float         @default(0)
+  priority            Priority      @default(MEDIUM)
+  
+  // System Processing
+  digitalVaultId      String?       @unique
+  processingStartTime DateTime?
+  processingEndTime   DateTime?
+  decision            ClaimDecision?
+  explanation         String?
+  
+  // Metadata
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  
+  // Relations
+  agentAnalyses       AgentAnalysis[]
+  auditLogs           AuditLog[]
+  evidences           Evidence[]
+  networkNodes        NetworkNode[]
+  
+  @@map("claims")
+}
+
+enum ClaimStatus {
+  PENDING
+  PROCESSING
+  APPROVED
+  HELD
+  ESCALATED
+  REJECTED
+  PAID
+}
+
+enum ClaimDecision {
+  APPROVE
+  HOLD
+  ESCALATE
+  REJECT
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// Multi-Agent System
+model AgentAnalysis {
+  id          String            @id @default(cuid())
+  claimId     String
+  agentType   AgentType
+  agentName   String
+  status      AnalysisStatus    @default(PENDING)
+  score       Float?
+  confidence  Float?
+  result      String?
+  details     String?           // JSON string for detailed analysis
+  startTime   DateTime          @default(now())
+  endTime     DateTime?
+  
+  claim       Claim             @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  
+  @@map("agent_analyses")
+}
+
+enum AgentType {
+  MEMBER_IDENTITY
+  CLINICAL_NECESSITY
+  PROVIDER_BEHAVIOR
+  PHARMACY_RX
+  NETWORK_GRAPH
+  FINANCIAL_LEAKAGE
+}
+
+enum AnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  TIMEOUT
+}
+
+// Digital Vault
+model DigitalVault {
+  id              String   @id @default(cuid())
+  vaultId         String   @unique
+  claimId         String   @unique
+  encryptedData   String   // Encrypted claim data
+  dataHash        String   // For integrity verification
+  status          VaultStatus @default(HELD)
+  holdReason      String?
+  releaseDate     DateTime?
+  createdBy       String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("digital_vault")
+}
+
+enum VaultStatus {
+  HELD
+  RELEASED
+  ESCALATED
+  REJECTED
+}
+
+// Network Analysis
+model NetworkNode {
+  id          String      @id @default(cuid())
+  claimId     String
+  nodeType    NodeType
+  nodeId      String      // Provider ID, Member ID, Pharmacy ID, etc.
+  nodeName    String
+  riskScore   Float       @default(0)
+  connections String?     // JSON array of connected node IDs
+  properties  String?     // JSON object of node properties
+  
+  claim       Claim       @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  
+  @@map("network_nodes")
+}
+
+enum NodeType {
+  PROVIDER
+  MEMBER
+  PHARMACY
+  FACILITY
+  SPONSOR
+  PRESCRIBER
+}
+
+// Evidence and Audit
+model Evidence {
+  id          String       @id @default(cuid())
+  claimId     String
+  evidenceType EvidenceType
+  description String
+  data        String?      // JSON evidence data
+  filePath    String?
+  timestamp   DateTime     @default(now())
+  createdBy   String
+  
+  claim       Claim        @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  
+  @@map("evidence")
+}
+
+enum EvidenceType {
+  IDENTITY_VERIFICATION
+  CLINICAL_RECORD
+  PROVIDER_HISTORY
+  FORMULARY_CHECK
+  NETWORK_ANALYSIS
+  FINANCIAL_ANALYSIS
+  REGULATORY_ALERT
+}
+
+model AuditLog {
+  id          String       @id @default(cuid())
+  userId      String?
+  action      String
+  resource    String       // Resource type (claim, agent, etc.)
+  resourceId  String       // Resource ID
+  oldValues   String?      // JSON string
+  newValues   String?      // JSON string
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime     @default(now())
+  
+  user        User?        @relation(fields: [userId], references: [id])
+  claim       Claim?       @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  
+  @@map("audit_logs")
+}
+
+// System Configuration
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String   // JSON string for complex configs
+  description String?
+  isActive    Boolean  @default(true)
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User?    @relation(fields: [createdBy], references: [id])
+  
+  @@map("system_configs")
+}
+
+// Integration Connections
+model IntegrationConnection {
+  id              String               @id @default(cuid())
+  systemName      IntegrationSystem
+  endpoint        String
+  apiKey          String?
+  status          ConnectionStatus     @default(ACTIVE)
+  lastSync        DateTime?
+  syncFrequency   Int                  @default(300) // seconds
+  config          String?              // JSON configuration
+  
+  @@map("integration_connections")
+}
+
+enum IntegrationSystem {
+  SHAFAFIYA
+  DHPO_ECLAIMLINK
+  MALAFFI
+  NABIDH
+  RIAYATI
+  DHA_API
+  DOH_API
+  MOHAP_API
+  AMER
+  ICA
+  PBM_SYSTEMS
+}
+
+enum ConnectionStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+  MAINTENANCE
+}
+
+// Analytics and Metrics
+model SystemMetrics {
+  id            String   @id @default(cuid())
+  metricName    String
+  metricValue   Float
+  metricUnit    String
+  timestamp     DateTime @default(now())
+  metadata      String?  // JSON metadata
+  
+  @@map("system_metrics")
 }

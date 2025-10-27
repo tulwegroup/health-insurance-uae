@@ -46,8 +46,9 @@ const navigation = [
   { name: 'Orchestration', href: '/orchestration', icon: GitBranch },
   { name: 'Digital Vault', href: '/vault', icon: Shield },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Regulators', href: '/regulators', icon: Building },
+  { name: 'Insurers', href: '/insurers', icon: Building },
   { name: 'Providers', href: '/providers', icon: Users },
+  { name: 'Regulators', href: '/regulators', icon: Activity },
   { name: 'Claims', href: '/claims', icon: FileText },
 ]
 
@@ -159,11 +160,20 @@ export default function DashboardLayout({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => window.location.href = '/agents'}
+                  onClick={() => window.location.href = '/insurers'}
                   className="text-xs justify-start"
                 >
-                  <Bot className="h-3 w-3 mr-2" />
-                  Agents
+                  <Building className="h-3 w-3 mr-2" />
+                  Insurers
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.location.href = '/providers'}
+                  className="text-xs justify-start"
+                >
+                  <Users className="h-3 w-3 mr-2" />
+                  Providers
                 </Button>
                 <Button
                   size="sm"

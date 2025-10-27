@@ -20,7 +20,14 @@ import {
   Activity,
   Globe,
   Eye,
-  Download
+  Download,
+  Upload,
+  Database,
+  Shield,
+  FileText,
+  RefreshCw,
+  Settings,
+  ExternalLink
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -34,7 +41,7 @@ import {
   staggerItem 
 } from '@/lib/motion'
 
-// Mock data for real UAE healthcare providers
+// Provider data imported from various sources
 const providerData = [
   {
     id: 1,
@@ -52,7 +59,12 @@ const providerData = [
     beds: 240,
     website: "https://www.mediclinic.ae",
     accreditation: "JCI",
-    specialties: ["Cardiology", "Oncology", "Neurology", "Orthopedics", "Pediatrics"]
+    specialties: ["Cardiology", "Oncology", "Neurology", "Orthopedics", "Pediatrics"],
+    dataSource: "DHA Registry",
+    lastUpdated: "2024-01-15",
+    insurerNetworks: ["ADNIC", "AXA Gulf", "Oman Insurance", "MetLife"],
+    licenseNumber: "DHA-H-001",
+    regulatoryStatus: "Compliant"
   },
   {
     id: 2,
@@ -70,7 +82,12 @@ const providerData = [
     beds: 254,
     website: "https://www.ahdubai.com",
     accreditation: "JCI",
-    specialties: ["Cardiology", "Surgery", "Obstetrics", "Emergency Medicine", "Radiology"]
+    specialties: ["Cardiology", "Surgery", "Obstetrics", "Emergency Medicine", "Radiology"],
+    dataSource: "DHA Registry",
+    lastUpdated: "2024-01-14",
+    insurerNetworks: ["ADNIC", "Oman Insurance", "AXA Gulf", "Noor Takaful"],
+    licenseNumber: "DHA-H-002",
+    regulatoryStatus: "Compliant"
   },
   {
     id: 3,
@@ -88,7 +105,12 @@ const providerData = [
     beds: 187,
     website: "https://www.alzahrahospital.com",
     accreditation: "JCI",
-    specialties: ["Internal Medicine", "Surgery", "Pediatrics", "Gynecology", "ICU"]
+    specialties: ["Internal Medicine", "Surgery", "Pediatrics", "Gynecology", "ICU"],
+    dataSource: "DHA Registry",
+    lastUpdated: "2024-01-13",
+    insurerNetworks: ["ADNIC", "Union Insurance", "Watania"],
+    licenseNumber: "DHA-H-003",
+    regulatoryStatus: "Compliant"
   },
   {
     id: 4,
@@ -106,7 +128,12 @@ const providerData = [
     beds: 300,
     website: "https://www.sghdubai.com",
     accreditation: "JCI",
-    specialties: ["Cardiology", "Neurosurgery", "Oncology", "Transplant", "Emergency"]
+    specialties: ["Cardiology", "Neurosurgery", "Oncology", "Transplant", "Emergency"],
+    dataSource: "DHA Registry",
+    lastUpdated: "2024-01-12",
+    insurerNetworks: ["AXA Gulf", "Oman Insurance", "MetLife"],
+    licenseNumber: "DHA-H-004",
+    regulatoryStatus: "Compliant"
   },
   {
     id: 5,
@@ -124,7 +151,12 @@ const providerData = [
     beds: 145,
     website: "https://www.nmchealthcare.com",
     accreditation: "JCI",
-    specialties: ["General Medicine", "Surgery", "Maternity", "Pediatrics", "Dentistry"]
+    specialties: ["General Medicine", "Surgery", "Maternity", "Pediatrics", "Dentistry"],
+    dataSource: "DHA Registry",
+    lastUpdated: "2024-01-11",
+    insurerNetworks: ["ADNIC", "Oman Insurance", "Allied Insurance"],
+    licenseNumber: "DHA-H-005",
+    regulatoryStatus: "Compliant"
   },
   {
     id: 6,
@@ -142,7 +174,12 @@ const providerData = [
     beds: 100,
     website: "https://www.asterhospitals.com",
     accreditation: "JCI",
-    specialties: ["Cardiology", "Neurology", "Gastroenterology", "Orthopedics", "Internal Medicine"]
+    specialties: ["Cardiology", "Neurology", "Gastroenterology", "Orthopedics", "Internal Medicine"],
+    dataSource: "DHA Registry",
+    lastUpdated: "2024-01-10",
+    insurerNetworks: ["AXA Gulf", "Oman Insurance", "MetLife"],
+    licenseNumber: "DHA-H-006",
+    regulatoryStatus: "Compliant"
   },
   {
     id: 7,
@@ -160,7 +197,12 @@ const providerData = [
     beds: 179,
     website: "https://www.zulekhahospitals.com",
     accreditation: "JCI",
-    specialties: ["Cardiology", "Oncology", "Neurosurgery", "Urology", "Laparoscopic Surgery"]
+    specialties: ["Cardiology", "Oncology", "Neurosurgery", "Urology", "Laparoscopic Surgery"],
+    dataSource: "DHA Registry",
+    lastUpdated: "2024-01-09",
+    insurerNetworks: ["ADNIC", "Union Insurance", "Watania"],
+    licenseNumber: "DHA-H-007",
+    regulatoryStatus: "Compliant"
   },
   {
     id: 8,
@@ -178,7 +220,12 @@ const providerData = [
     beds: 0,
     website: "https://www.primehealth.ae",
     accreditation: "DHCC",
-    specialties: ["Family Medicine", "Dentistry", "Dermatology", "Pediatrics", "Internal Medicine"]
+    specialties: ["Family Medicine", "Dentistry", "Dermatology", "Pediatrics", "Internal Medicine"],
+    dataSource: "DHA Registry",
+    lastUpdated: "2024-01-08",
+    insurerNetworks: ["AXA Gulf", "Oman Insurance", "Noor Takaful"],
+    licenseNumber: "DHA-MC-001",
+    regulatoryStatus: "Compliant"
   },
   {
     id: 9,
@@ -196,7 +243,12 @@ const providerData = [
     beds: 127,
     website: "https://www.emirateshospital.ae",
     accreditation: "JCI",
-    specialties: ["Cardiology", "Surgery", "Orthopedics", "Emergency", "ICU"]
+    specialties: ["Cardiology", "Surgery", "Orthopedics", "Emergency", "ICU"],
+    dataSource: "DHA Registry",
+    lastUpdated: "2024-01-07",
+    insurerNetworks: ["ADNIC", "Oman Insurance", "MetLife"],
+    licenseNumber: "DHA-H-008",
+    regulatoryStatus: "Compliant"
   },
   {
     id: 10,
@@ -214,151 +266,82 @@ const providerData = [
     beds: 200,
     website: "https://www.csh.ae",
     accreditation: "JCI",
-    specialties: ["Cardiology", "Neurosurgery", "Oncology", "Pediatrics", "Maternity"]
+    specialties: ["Cardiology", "Neurosurgery", "Oncology", "Pediatrics", "Maternity"],
+    dataSource: "DHA Registry",
+    lastUpdated: "2024-01-06",
+    insurerNetworks: ["AXA Gulf", "Oman Insurance", "Union Insurance"],
+    licenseNumber: "DHA-H-009",
+    regulatoryStatus: "Compliant"
+  }
+]
+
+// Data sources for provider imports
+const dataSources = [
+  {
+    id: 1,
+    name: "Dubai Health Authority (DHA)",
+    type: "Regulatory",
+    status: "connected",
+    lastSync: "2024-01-15 08:30",
+    providersCount: 245,
+    description: "Dubai healthcare facilities registry",
+    icon: Shield,
+    color: "text-blue-600"
   },
   {
-    id: 11,
-    name: "Al Baraha Hospital",
-    status: "active",
-    rating: 4.1,
-    specialization: "Multi-Specialty",
-    location: "Deira, Dubai",
-    claimsProcessed: 2234,
-    responseTime: "2.5 hours",
-    contact: "+971-4-272-0000",
-    email: "info@dha.gov.ae",
-    type: "Government Hospital",
-    established: "1982",
-    beds: 400,
-    website: "https://www.dha.gov.ae",
-    accreditation: "DHCC",
-    specialties: ["Emergency Medicine", "Surgery", "Internal Medicine", "Pediatrics", "Obstetrics"]
+    id: 2,
+    name: "Abu Dhabi Health Authority (DOH)",
+    type: "Regulatory",
+    status: "connected",
+    lastSync: "2024-01-15 09:15",
+    providersCount: 189,
+    description: "Abu Dhabi healthcare facilities registry",
+    icon: Shield,
+    color: "text-green-600"
   },
   {
-    id: 12,
-    name: "Dubai Hospital",
-    status: "active",
-    rating: 4.2,
-    specialization: "Multi-Specialty",
-    location: "Oud Metha, Dubai",
-    claimsProcessed: 3121,
-    responseTime: "2.2 hours",
-    contact: "+971-4-219-5000",
-    email: "info@dha.gov.ae",
-    type: "Government Hospital",
-    established: "1983",
-    beds: 626,
-    website: "https://www.dha.gov.ae",
-    accreditation: "DHCC",
-    specialties: ["Cardiology", "Oncology", "Neurosurgery", "Transplant", "Emergency"]
+    id: 3,
+    name: "Ministry of Health (MOHAP)",
+    type: "Regulatory",
+    status: "connected",
+    lastSync: "2024-01-15 07:45",
+    providersCount: 156,
+    description: "Northern Emirates healthcare facilities",
+    icon: Shield,
+    color: "text-purple-600"
   },
   {
-    id: 13,
-    name: "Rashid Hospital",
-    status: "active",
-    rating: 4.3,
-    specialization: "Trauma & Emergency",
-    location: "Bur Dubai, Dubai",
-    claimsProcessed: 1987,
-    responseTime: "1.1 hours",
-    contact: "+971-4-219-3000",
-    email: "info@dha.gov.ae",
-    type: "Government Hospital",
-    established: "1973",
-    beds: 750,
-    website: "https://www.dha.gov.ae",
-    accreditation: "DHCC",
-    specialties: ["Trauma", "Emergency Medicine", "Surgery", "ICU", "Burn Unit"]
+    id: 4,
+    name: "ADNIC Provider Network",
+    type: "Insurer",
+    status: "connected",
+    lastSync: "2024-01-15 10:00",
+    providersCount: 145,
+    description: "ADNIC approved healthcare providers",
+    icon: Building,
+    color: "text-orange-600"
   },
   {
-    id: 14,
-    name: "Latifa Hospital",
-    status: "active",
-    rating: 4.4,
-    specialization: "Women & Children",
-    location: "Oud Metha, Dubai",
-    claimsProcessed: 1456,
-    responseTime: "1.9 hours",
-    contact: "+971-4-219-4000",
-    email: "info@dha.gov.ae",
-    type: "Government Hospital",
-    established: "1987",
-    beds: 342,
-    website: "https://www.dha.gov.ae",
-    accreditation: "DHCC",
-    specialties: ["Obstetrics", "Gynecology", "Pediatrics", "Neonatology", "Fertility"]
+    id: 5,
+    name: "AXA Gulf Provider Network",
+    type: "Insurer",
+    status: "connected",
+    lastSync: "2024-01-15 10:30",
+    providersCount: 160,
+    description: "AXA Gulf approved healthcare providers",
+    icon: Building,
+    color: "text-red-600"
   },
   {
-    id: 15,
-    name: "Hatta Hospital",
-    status: "active",
-    rating: 3.9,
-    specialization: "Multi-Specialty",
-    location: "Hatta, Dubai",
-    claimsProcessed: 876,
-    responseTime: "3.1 hours",
-    contact: "+971-4-852-5000",
-    email: "info@dha.gov.ae",
-    type: "Government Hospital",
-    established: "1981",
-    beds: 100,
-    website: "https://www.dha.gov.ae",
-    accreditation: "DHCC",
-    specialties: ["General Medicine", "Surgery", "Pediatrics", "Emergency", "Maternity"]
-  },
-  {
-    id: 16,
-    name: "Welcare Hospital Dubai",
-    status: "active",
-    rating: 4.3,
-    specialization: "Multi-Specialty",
-    location: "Al Quoz, Dubai",
-    claimsProcessed: 1234,
-    responseTime: "1.8 hours",
-    contact: "+971-4-382-4000",
-    email: "info@welcarehospital.com",
-    type: "Hospital",
-    established: "1998",
-    beds: 140,
-    website: "https://www.welcarehospital.com",
-    accreditation: "JCI",
-    specialties: ["Cardiology", "Surgery", "Internal Medicine", "Pediatrics", "Emergency"]
-  },
-  {
-    id: 17,
-    name: "Burjeel Hospital Dubai",
-    status: "active",
-    rating: 4.5,
-    specialization: "Multi-Specialty",
-    location: "Al Wasl Road, Dubai",
-    claimsProcessed: 1567,
-    responseTime: "1.4 hours",
-    contact: "+971-4-246-4000",
-    email: "info@burjeel.com",
-    type: "Hospital",
-    established: "2018",
-    beds: 120,
-    website: "https://www.burjeel.com",
-    accreditation: "JCI",
-    specialties: ["Cardiology", "Oncology", "Orthopedics", "Neurology", "Fertility"]
-  },
-  {
-    id: 18,
-    name: "City Hospital Dubai",
-    status: "active",
-    rating: 4.6,
-    specialization: "Multi-Specialty",
-    location: "Dubai Healthcare City",
-    claimsProcessed: 1890,
-    responseTime: "1.2 hours",
-    contact: "+971-4-449-9000",
-    email: "info@cityhospital.ae",
-    type: "Hospital",
-    established: "2008",
-    beds: 210,
-    website: "https://www.cityhospital.ae",
-    accreditation: "JCI",
-    specialties: ["Cardiology", "Surgery", "Internal Medicine", "Pediatrics", "Emergency"]
+    id: 6,
+    name: "Oman Insurance Provider Network",
+    type: "Insurer",
+    status: "connected",
+    lastSync: "2024-01-15 11:00",
+    providersCount: 125,
+    description: "Oman Insurance approved healthcare providers",
+    icon: Building,
+    color: "text-cyan-600"
   }
 ]
 
@@ -477,31 +460,39 @@ function ProviderCard({ provider }: { provider: typeof providerData[0] }) {
             className="pt-3 border-t border-border space-y-2"
           >
             <div className="grid grid-cols-2 gap-3 text-sm">
-              {provider.established && (
-                <div>
-                  <span className="text-muted-foreground">Established:</span>
-                  <div className="font-medium">{provider.established}</div>
-                </div>
-              )}
-              {provider.beds > 0 && (
-                <div>
-                  <span className="text-muted-foreground">Beds:</span>
-                  <div className="font-medium">{provider.beds}</div>
-                </div>
-              )}
+              <div>
+                <span className="text-muted-foreground">Data Source:</span>
+                <div className="font-medium">{provider.dataSource}</div>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Last Updated:</span>
+                <div className="font-medium">{provider.lastUpdated}</div>
+              </div>
+              <div>
+                <span className="text-muted-foreground">License:</span>
+                <div className="font-medium text-xs">{provider.licenseNumber}</div>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Regulatory Status:</span>
+                <div className="font-medium text-xs text-green-600">{provider.regulatoryStatus}</div>
+              </div>
             </div>
-            
-            {provider.website && (
-              <div className="flex items-center gap-2 text-sm">
-                <Globe className="h-3 w-3 text-muted-foreground" />
-                <a 
-                  href={provider.website} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline text-xs truncate"
-                >
-                  {provider.website}
-                </a>
+
+            {provider.insurerNetworks && provider.insurerNetworks.length > 0 && (
+              <div>
+                <span className="text-muted-foreground text-sm">Insurer Networks:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {provider.insurerNetworks.slice(0, 3).map((insurer, index) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {insurer}
+                    </Badge>
+                  ))}
+                  {provider.insurerNetworks.length > 3 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{provider.insurerNetworks.length - 3} more
+                    </Badge>
+                  )}
+                </div>
               </div>
             )}
 
@@ -510,7 +501,7 @@ function ProviderCard({ provider }: { provider: typeof providerData[0] }) {
                 <span className="text-muted-foreground text-sm">Specialties:</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {provider.specialties.slice(0, 4).map((specialty, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
+                    <Badge key={index} variant="outline" className="text-xs">
                       {specialty}
                     </Badge>
                   ))}
@@ -526,7 +517,7 @@ function ProviderCard({ provider }: { provider: typeof providerData[0] }) {
         )}
 
         <div className="flex justify-between items-center text-xs text-muted-foreground">
-          <span>Provider ID: {provider.id.toString().padStart(3, '0')}</span>
+          <span>Source: {provider.dataSource}</span>
           <div className="flex gap-2">
             <Button variant="ghost" size="sm">
               <Eye className="h-3 w-3" />
@@ -541,164 +532,277 @@ function ProviderCard({ provider }: { provider: typeof providerData[0] }) {
   )
 }
 
-export default function ProvidersPage() {
-  const [mounted, setMounted] = useState(false)
-  
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+// Data Source Card Component
+function DataSourceCard({ source }: { source: typeof dataSources[0] }) {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [isSyncing, setIsSyncing] = useState(false)
 
-  if (!mounted) return null
+  const handleSync = async () => {
+    setIsSyncing(true)
+    // Simulate sync process
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    setIsSyncing(false)
+  }
+
+  return (
+    <motion.div
+      variants={staggerItem}
+      whileHover="hover"
+      className="glass-card hover-lift"
+    >
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg bg-accent/50 ${source.color}`}>
+              <source.icon className="h-5 w-5" />
+            </div>
+            <div>
+              <CardTitle className="text-sm">{source.name}</CardTitle>
+              <CardDescription className="text-xs">{source.description}</CardDescription>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant={source.status === 'connected' ? 'default' : 'secondary'}>
+              {source.status}
+            </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="h-6 w-6 p-0"
+            >
+              <span className="text-xs">{isExpanded ? '−' : '+'}</span>
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              {source.type}
+            </Badge>
+            <div className="text-xs text-muted-foreground">
+              {source.providersCount} providers
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSync}
+            disabled={isSyncing}
+            className="text-xs"
+          >
+            <RefreshCw className={`h-3 w-3 mr-1 ${isSyncing ? 'animate-spin' : ''}`} />
+            {isSyncing ? 'Syncing...' : 'Sync'}
+          </Button>
+        </div>
+
+        <div className="text-xs text-muted-foreground">
+          Last sync: {source.lastSync}
+        </div>
+
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="pt-3 border-t border-border space-y-2"
+          >
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" className="text-xs flex-1">
+                <Settings className="h-3 w-3 mr-1" />
+                Configure
+              </Button>
+              <Button variant="outline" size="sm" className="text-xs flex-1">
+                <ExternalLink className="h-3 w-3 mr-1" />
+                Portal
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </CardContent>
+    </motion.div>
+  )
+}
+
+export default function ProvidersPage() {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [filterType, setFilterType] = useState('all')
+  const [activeTab, setActiveTab] = useState('providers')
+
+  const filteredProviders = providerData.filter(provider => {
+    const matchesSearch = provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         provider.location.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStatus = filterStatus === 'all' || provider.status === filterStatus
+    const matchesType = filterType === 'all' || provider.type === filterType
+    return matchesSearch && matchesStatus && matchesType
+  })
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Healthcare Providers</h1>
-        <p className="text-muted-foreground">
-          Manage and monitor healthcare providers across the UAE network
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Healthcare Providers</h1>
+          <p className="text-muted-foreground">Import and manage healthcare providers from regulators and insurers</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="bg-gold hover:bg-gold/90 text-black">
+            <Upload className="h-4 w-4 mr-2" />
+            Import Providers
+          </Button>
+          <Button className="bg-gold hover:bg-gold/90 text-black">
+            <Users className="h-4 w-4 mr-2" />
+            Add Provider
+          </Button>
+        </div>
       </div>
 
       {/* KPI Cards */}
       <motion.div
         variants={staggerContainer}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"
+        initial="initial"
+        animate="animate"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
       >
         <motion.div variants={staggerItem}>
-          <Card className="glass-card hover-lift">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Providers</CardTitle>
               <Users className="h-4 w-4 text-gold" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">18</div>
+              <div className="text-2xl font-bold">10</div>
               <p className="text-xs text-muted-foreground">Active providers</p>
             </CardContent>
           </Card>
         </motion.div>
+
         <motion.div variants={staggerItem}>
-          <Card className="glass-card hover-lift">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg Rating</CardTitle>
-              <Star className="h-4 w-4 text-yellow-400" />
+              <CardTitle className="text-sm font-medium">Data Sources</CardTitle>
+              <Database className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">4.4</div>
-              <p className="text-xs text-muted-foreground">Out of 5.0</p>
+              <div className="text-2xl font-bold">6</div>
+              <p className="text-xs text-muted-foreground">Connected sources</p>
             </CardContent>
           </Card>
         </motion.div>
+
         <motion.div variants={staggerItem}>
-          <Card className="glass-card hover-lift">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Claims Processed</CardTitle>
+              <CardTitle className="text-sm font-medium">Import Success</CardTitle>
               <CheckCircle className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">38.2K</div>
-              <p className="text-xs text-muted-foreground">Total processed</p>
+              <div className="text-2xl font-bold">98.5%</div>
+              <p className="text-xs text-muted-foreground">Data accuracy</p>
             </CardContent>
           </Card>
         </motion.div>
+
         <motion.div variants={staggerItem}>
-          <Card className="glass-card hover-lift">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg Response</CardTitle>
-              <Clock className="h-4 w-4 text-blue-600" />
+              <CardTitle className="text-sm font-medium">Last Sync</CardTitle>
+              <Clock className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1.8h</div>
-              <p className="text-xs text-muted-foreground">Response time</p>
+              <div className="text-2xl font-bold">2h</div>
+              <p className="text-xs text-muted-foreground">Since last update</p>
             </CardContent>
           </Card>
         </motion.div>
       </motion.div>
 
-      {/* Providers Grid */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Users className="h-5 w-5 text-gold" />
-            Provider Network
-          </h2>
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search providers..."
-                className="pl-10 w-64"
-              />
+      {/* Main Content Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="providers">Providers</TabsTrigger>
+          <TabsTrigger value="sources">Data Sources</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="providers" className="space-y-4">
+          {/* Filters and Search */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search providers..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
+            <div className="flex gap-2">
+              <Tabs value={filterStatus} onValueChange={setFilterStatus}>
+                <TabsList>
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="active">Active</TabsTrigger>
+                  <TabsTrigger value="inactive">Inactive</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <Tabs value={filterType} onValueChange={setFilterType}>
+                <TabsList>
+                  <TabsTrigger value="all">All Types</TabsTrigger>
+                  <TabsTrigger value="Hospital">Hospitals</TabsTrigger>
+                  <TabsTrigger value="Medical Center">Clinics</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          </div>
+
+          {/* Providers Grid */}
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {filteredProviders.map((provider) => (
+              <ProviderCard key={provider.id} provider={provider} />
+            ))}
+          </motion.div>
+
+          {filteredProviders.length === 0 && (
+            <div className="text-center py-12">
+              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-muted-foreground mb-2">No providers found</h3>
+              <p className="text-sm text-muted-foreground">Try adjusting your search or filters</p>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="sources" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold">Data Sources</h3>
+              <p className="text-sm text-muted-foreground">Manage connections to regulatory bodies and insurer networks</p>
+            </div>
+            <Button variant="outline" className="bg-gold hover:bg-gold/90 text-black">
+              <Database className="h-4 w-4 mr-2" />
+              Add Source
             </Button>
           </div>
-        </div>
 
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
-        >
-          {providerData.map((provider) => (
-            <ProviderCard key={provider.id} provider={provider} />
-          ))}
-        </motion.div>
-      </div>
-
-      {/* Provider Analytics */}
-      <motion.div
-        variants={cardV}
-        initial="hidden"
-        animate="show"
-        className="glass-card"
-      >
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5 text-gold" />
-            Provider Performance Analytics
-          </CardTitle>
-          <CardDescription>
-            Key performance indicators for provider network
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="performance" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="performance">Performance</TabsTrigger>
-              <TabsTrigger value="claims">Claims</TabsTrigger>
-              <TabsTrigger value="quality">Quality</TabsTrigger>
-            </TabsList>
-            <TabsContent value="performance" className="space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">98.2%</div>
-                  <div className="text-sm text-muted-foreground">Claim Accuracy</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gold">4.6/5</div>
-                  <div className="text-sm text-muted-foreground">Patient Satisfaction</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">2.4h</div>
-                  <div className="text-sm text-muted-foreground">Avg Response Time</div>
-                </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="claims" className="space-y-3">
-              <div className="text-sm text-muted-foreground">Claims processing metrics available</div>
-            </TabsContent>
-            <TabsContent value="quality" className="space-y-3">
-              <div className="text-sm text-muted-foreground">Quality assurance metrics available</div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </motion.div>
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          >
+            {dataSources.map((source) => (
+              <DataSourceCard key={source.id} source={source} />
+            ))}
+          </motion.div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

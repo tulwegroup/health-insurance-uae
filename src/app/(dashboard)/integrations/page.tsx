@@ -241,6 +241,10 @@ const integrationEvents = [
 // Integration Card Component
 function IntegrationCard({ integration }: { integration: typeof integrationData[0] }) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isTestingConnection, setIsTestingConnection] = useState(false)
+  const [connectionStatus, setConnectionStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
+  const [showDetails, setShowDetails] = useState(false)
+  const [showConfigure, setShowConfigure] = useState(false)
   
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -266,175 +270,442 @@ function IntegrationCard({ integration }: { integration: typeof integrationData[
     return 'text-red-600'
   }
 
+  // Test Connection Function
+  const handleTestConnection = async () => {
+    setIsTestingConnection(true)
+    setConnectionStatus('testing')
+    
+    // Simulate connection test
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    
+    // Simulate random success/failure
+    const isSuccess = Math.random() > 0.2
+    setConnectionStatus(isSuccess ? 'success' : 'error')
+    setIsTestingConnection(false)
+    
+    // Reset status after 3 seconds
+    setTimeout(() => setConnectionStatus('idle'), 3000)
+  }
+
+  // Open Portal Function
+  const handleOpenPortal = () => {
+    // Simulate opening portal based on integration
+    const portalUrls = {
+      'shafafiya': 'https://shafafiya.dha.gov.ae',
+      'dhpo-eclaimlink': 'https://eclaimlink.dhpo.ae',
+      'malaffi': 'https://malaffi.doh.gov.ae',
+      'nabidh': 'https://nabidh.mohap.gov.ae',
+      'riayati': 'https://riayati.doh.gov.ae',
+      'dha-apis': 'https://api.dha.gov.ae'
+    }
+    
+    const url = portalUrls[integration.id as keyof typeof portalUrls]
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer')
+    }
+  }
+
+  // View Details Function
+  const handleViewDetails = () => {
+    setShowDetails(true)
+  }
+
+  // Configure Function
+  const handleConfigure = () => {
+    setShowConfigure(true)
+  }
+
   return (
-    <motion.div
-      variants={staggerItem}
-      whileHover="hover"
-      className="glass-card hover-lift"
-    >
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg bg-accent/50 ${getStatusColor(integration.status)}`}>
-              <Database className="h-5 w-5" />
+    <>
+      <motion.div
+        variants={staggerItem}
+        whileHover="hover"
+        className="glass-card hover-lift"
+      >
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-lg bg-accent/50 ${getStatusColor(integration.status)}`}>
+                <Database className="h-5 w-5" />
+              </div>
+              <div>
+                <CardTitle className="text-sm">{integration.name}</CardTitle>
+                <CardDescription className="text-xs">{integration.organization}</CardDescription>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.div variants={badgePulse} animate="animate">
+                <Badge variant={getStatusBadge(integration.status)}>
+                  {integration.status}
+                </Badge>
+              </motion.div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleViewDetails}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    View Details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleConfigure}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Configure
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleTestConnection} disabled={isTestingConnection}>
+                    <RefreshCw className={`mr-2 h-4 w-4 ${isTestingConnection ? 'animate-spin' : ''}`} />
+                    {isTestingConnection ? 'Testing...' : 'Test Connection'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleOpenPortal}>
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Open Portal
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </CardHeader>
+        
+        <CardContent className="space-y-4">
+          {/* Connection Status Indicator */}
+          {connectionStatus !== 'idle' && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`p-2 rounded-lg text-sm ${
+                connectionStatus === 'testing' ? 'bg-blue-100 text-blue-800' :
+                connectionStatus === 'success' ? 'bg-green-100 text-green-800' :
+                'bg-red-100 text-red-800'
+              }`}
+            >
+              {connectionStatus === 'testing' && 'Testing connection...'}
+              {connectionStatus === 'success' && '✓ Connection successful'}
+              {connectionStatus === 'error' && '✗ Connection failed'}
+            </motion.div>
+          )}
+
+          {/* Health and Performance Metrics */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Health</span>
+                <span className={`font-medium ${getHealthColor(integration.health)}`}>{integration.health}%</span>
+              </div>
+              <Progress value={integration.health} className="h-2" />
             </div>
             <div>
-              <CardTitle className="text-sm">{integration.name}</CardTitle>
-              <CardDescription className="text-xs">{integration.organization}</CardDescription>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Uptime</span>
+                <span className="font-medium text-green-600">{integration.uptime}%</span>
+              </div>
+              <Progress value={integration.uptime} className="h-2" />
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <motion.div variants={badgePulse} animate="animate">
-              <Badge variant={getStatusBadge(integration.status)}>
-                {integration.status}
-              </Badge>
+
+          {/* Key Metrics */}
+          <div className="grid grid-cols-3 gap-3 text-sm">
+            <div className="text-center">
+              <div className="font-medium">{integration.latency}ms</div>
+              <div className="text-xs text-muted-foreground">Latency</div>
+            </div>
+            <div className="text-center">
+              <div className="font-medium">{integration.messagesPerMinute}</div>
+              <div className="text-xs text-muted-foreground">Msg/min</div>
+            </div>
+            <div className="text-center">
+              <div className="font-medium">{integration.endpoints}</div>
+              <div className="text-xs text-muted-foreground">Endpoints</div>
+            </div>
+          </div>
+
+          {/* Connection Info */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                Last Sync
+              </span>
+              <span className="font-medium">{integration.lastSync}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="flex items-center gap-1">
+                <Database className="h-3 w-3" />
+                Data Volume
+              </span>
+              <span className="font-medium">{integration.dataVolume}</span>
+            </div>
+          </div>
+
+          {/* Expanded Details */}
+          {isExpanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="pt-3 border-t border-border space-y-3"
+            >
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Location:</span>
+                  <div className="font-medium">{integration.location}</div>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Contact:</span>
+                  <div className="font-medium">{integration.contact}</div>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">API Version:</span>
+                  <div className="font-medium">{integration.apiVersion}</div>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Security:</span>
+                  <div className="font-medium">{integration.securityLevel}</div>
+                </div>
+              </div>
+              <div className="text-sm">
+                <span className="text-muted-foreground">Certifications:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {integration.certifications.map((cert, index) => (
+                    <Badge key={index} variant="outline" className="text-xs">
+                      {cert}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <div className="text-sm">
+                <span className="text-muted-foreground">Compliance Score:</span>
+                <div className="font-medium text-green-600">{integration.complianceScore}%</div>
+              </div>
             </motion.div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Eye className="mr-2 h-4 w-4" />
-                  View Details
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Configure
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Test Connection
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Open Portal
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent className="space-y-4">
-        {/* Health and Performance Metrics */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Health</span>
-              <span className={`font-medium ${getHealthColor(integration.health)}`}>{integration.health}%</span>
-            </div>
-            <Progress value={integration.health} className="h-2" />
-          </div>
-          <div>
-            <div className="flex justify-between text-sm mb-1">
-              <span>Uptime</span>
-              <span className="font-medium text-green-600">{integration.uptime}%</span>
-            </div>
-            <Progress value={integration.uptime} className="h-2" />
-          </div>
-        </div>
+          )}
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-3 gap-3 text-sm">
-          <div className="text-center">
-            <div className="font-medium">{integration.latency}ms</div>
-            <div className="text-xs text-muted-foreground">Latency</div>
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-xs"
+            >
+              {isExpanded ? 'Collapse' : 'Expand'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleTestConnection}
+              disabled={isTestingConnection}
+              className="text-xs"
+            >
+              <RefreshCw className={`h-3 w-3 mr-1 ${isTestingConnection ? 'animate-spin' : ''}`} />
+              {isTestingConnection ? 'Testing' : 'Test'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleViewDetails}
+              className="text-xs"
+            >
+              <Eye className="h-3 w-3 mr-1" />
+              Details
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleConfigure}
+              className="text-xs"
+            >
+              <Settings className="h-3 w-3 mr-1" />
+              Configure
+            </Button>
           </div>
-          <div className="text-center">
-            <div className="font-medium">{integration.messagesPerMinute}</div>
-            <div className="text-xs text-muted-foreground">Msg/min</div>
-          </div>
-          <div className="text-center">
-            <div className="font-medium">{integration.endpoints}</div>
-            <div className="text-xs text-muted-foreground">Endpoints</div>
-          </div>
-        </div>
+        </CardContent>
+      </motion.div>
 
-        {/* Connection Info */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              Last Sync
-            </span>
-            <span className="font-medium">{integration.lastSync}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="flex items-center gap-1">
-              <Database className="h-3 w-3" />
-              Data Volume
-            </span>
-            <span className="font-medium">{integration.dataVolume}</span>
-          </div>
-        </div>
-
-        {/* Expanded Details */}
-        {isExpanded && (
+      {/* Details Modal */}
+      {showDetails && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setShowDetails(false)}
+        >
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="pt-3 border-t border-border space-y-3"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-card rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="text-muted-foreground">Location:</span>
-                <div className="font-medium">{integration.location}</div>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Contact:</span>
-                <div className="font-medium">{integration.contact}</div>
-              </div>
-              <div>
-                <span className="text-muted-foreground">API Version:</span>
-                <div className="font-medium">{integration.apiVersion}</div>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Security:</span>
-                <div className="font-medium">{integration.securityLevel}</div>
-              </div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">{integration.name} - Details</h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowDetails(false)}>
+                <XCircle className="h-4 w-4" />
+              </Button>
             </div>
-            <div className="text-sm">
-              <span className="text-muted-foreground">Certifications:</span>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {integration.certifications.map((cert, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
-                    {cert}
-                  </Badge>
-                ))}
+            
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium mb-2">Overview</h4>
+                <p className="text-sm text-muted-foreground">{integration.description}</p>
               </div>
-            </div>
-            <div className="text-sm">
-              <span className="text-muted-foreground">Compliance Score:</span>
-              <div className="font-medium text-green-600">{integration.complianceScore}%</div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-sm text-muted-foreground">Organization:</span>
+                  <div className="font-medium">{integration.organization}</div>
+                </div>
+                <div>
+                  <span className="text-sm text-muted-foreground">Type:</span>
+                  <div className="font-medium">{integration.type}</div>
+                </div>
+                <div>
+                  <span className="text-sm text-muted-foreground">Status:</span>
+                  <div className="font-medium">{integration.status}</div>
+                </div>
+                <div>
+                  <span className="text-sm text-muted-foreground">Established:</span>
+                  <div className="font-medium">{integration.established}</div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium mb-2">Performance Metrics</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Health Score:</span>
+                    <div className="font-medium">{integration.health}%</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Uptime:</span>
+                    <div className="font-medium">{integration.uptime}%</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Latency:</span>
+                    <div className="font-medium">{integration.latency}ms</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Messages/min:</span>
+                    <div className="font-medium">{integration.messagesPerMinute}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium mb-2">Technical Details</h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">API Version:</span>
+                    <div className="font-medium">{integration.apiVersion}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Endpoints:</span>
+                    <div className="font-medium">{integration.endpoints}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Active Connections:</span>
+                    <div className="font-medium">{integration.activeConnections}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Security Level:</span>
+                    <div className="font-medium">{integration.securityLevel}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium mb-2">Contact Information</h4>
+                <div className="space-y-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Location:</span>
+                    <div className="font-medium">{integration.location}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Contact:</span>
+                    <div className="font-medium">{integration.contact}</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
-        )}
+        </motion.div>
+      )}
 
-        {/* Action Buttons */}
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex-1"
+      {/* Configure Modal */}
+      {showConfigure && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setShowConfigure(false)}
+        >
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-card rounded-lg p-6 max-w-lg w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
           >
-            {isExpanded ? 'Collapse' : 'Expand'}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1"
-          >
-            <RefreshCw className="h-3 w-3 mr-1" />
-            Test
-          </Button>
-        </div>
-      </CardContent>
-    </motion.div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Configure {integration.name}</h3>
+              <Button variant="ghost" size="sm" onClick={() => setShowConfigure(false)}>
+                <XCircle className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">API Endpoint</label>
+                <Input 
+                  defaultValue={`https://api.${integration.id}.ae/v${integration.apiVersion}`}
+                  className="mt-1"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">API Key</label>
+                <Input 
+                  type="password"
+                  defaultValue="••••••••••••••••"
+                  className="mt-1"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">Connection Timeout (seconds)</label>
+                <Input 
+                  type="number"
+                  defaultValue="30"
+                  className="mt-1"
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium">Retry Attempts</label>
+                <Input 
+                  type="number"
+                  defaultValue="3"
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input type="checkbox" id="auto-sync" defaultChecked />
+                <label htmlFor="auto-sync" className="text-sm">Enable automatic synchronization</label>
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button onClick={() => setShowConfigure(false)} className="flex-1">
+                  Save Configuration
+                </Button>
+                <Button variant="outline" onClick={() => setShowConfigure(false)} className="flex-1">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </>
   )
 }
 

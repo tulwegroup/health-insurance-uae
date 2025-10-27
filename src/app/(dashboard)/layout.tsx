@@ -143,7 +143,7 @@ export default function DashboardLayout({
       {/* Main Content */}
       <div className="flex max-w-screen-2xl mx-auto">
         {/* Desktop Sidebar */}
-        <div className="hidden lg:block w-56 xl:w-64 bg-card border-r border-border flex-shrink-0">
+        <div className="hidden lg:block w-72 xl:w-80 bg-card border-r border-border flex-shrink-0">
           <div className="flex items-center gap-2 p-6 border-b border-border">
             <Shield className="h-8 w-8 text-gold" />
             <div>
@@ -153,31 +153,34 @@ export default function DashboardLayout({
           </div>
           <nav className="p-4 space-y-2">
             {/* Navigation Test */}
-            <div className="p-2 bg-gold/10 rounded-lg mb-4">
-              <p className="text-xs text-gold mb-2">Navigation Test:</p>
-              <div className="flex gap-2">
+            <div className="p-3 bg-gold/10 rounded-lg mb-4">
+              <p className="text-xs text-gold mb-2 font-medium">Quick Navigation:</p>
+              <div className="grid grid-cols-1 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => window.location.href = '/agents'}
-                  className="text-xs"
+                  className="text-xs justify-start"
                 >
+                  <Bot className="h-3 w-3 mr-2" />
                   Agents
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => window.location.href = '/integrations'}
-                  className="text-xs"
+                  className="text-xs justify-start"
                 >
+                  <Database className="h-3 w-3 mr-2" />
                   Integrations
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => window.location.href = '/analytics'}
-                  className="text-xs"
+                  className="text-xs justify-start"
                 >
+                  <BarChart3 className="h-3 w-3 mr-2" />
                   Analytics
                 </Button>
               </div>
@@ -291,7 +294,7 @@ export default function DashboardLayout({
           </header>
 
           {/* Page Content */}
-          <main className="p-4 lg:p-6 max-w-7xl mx-auto">
+          <main className="p-4 lg:p-6 max-w-none xl:max-w-7xl mx-auto">
             {children}
           </main>
         </div>

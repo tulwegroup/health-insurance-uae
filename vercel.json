@@ -1,0 +1,42 @@
+{
+  "rewrites": [
+    {
+      "source": "/overview",
+      "destination": "/overview/"
+    },
+    {
+      "source": "/agents",
+      "destination": "/agents/"
+    },
+    {
+      "source": "/integrations",
+      "destination": "/integrations/"
+    },
+    {
+      "source": "/orchestration",
+      "destination": "/orchestration/"
+    },
+    {
+      "source": "/vault",
+      "destination": "/vault/"
+    },
+    {
+      "source": "/analytics",
+      "destination": "/analytics/"
+    },
+    {
+      "source": "/regulators",
+      "destination": "/regulators/"
+    },
+    {
+      "source": "/providers",
+      "destination": "/providers/"
+    },
+    {
+      "source": "/claims",
+      "destination": "/claims/"
+    }
+  ],
+  "trailingSlash": true,
+  "cleanUrls": false
+}

@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
-import SystemOverview from '@/components/SystemOverview'
 import { 
   Shield, 
   Activity, 
@@ -120,7 +119,87 @@ export default function HIISDashboard() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <SystemOverview />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Claims Status Breakdown */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5" />
+                  Claims Status Distribution
+                </CardTitle>
+                <CardDescription>Real-time claim processing status</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Approved</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={(systemMetrics.approvedClaims / systemMetrics.totalClaims) * 100} className="w-24" />
+                    <span className="text-sm font-medium">{systemMetrics.approvedClaims}</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Processing</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={(systemMetrics.processingClaims / systemMetrics.totalClaims) * 100} className="w-24" />
+                    <span className="text-sm font-medium">{systemMetrics.processingClaims}</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Held</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={(systemMetrics.heldClaims / systemMetrics.totalClaims) * 100} className="w-24" />
+                    <span className="text-sm font-medium">{systemMetrics.heldClaims}</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Escalated</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={(systemMetrics.escalatedClaims / systemMetrics.totalClaims) * 100} className="w-24" />
+                    <span className="text-sm font-medium">{systemMetrics.escalatedClaims}</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Rejected</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={(systemMetrics.rejectedClaims / systemMetrics.totalClaims) * 100} className="w-24" />
+                    <span className="text-sm font-medium">{systemMetrics.rejectedClaims}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Claims */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="w-5 h-5" />
+                  Recent Claims Activity
+                </CardTitle>
+                <CardDescription>Latest claim processing results</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                  {recentClaims.map((claim) => (
+                    <div key={claim.id} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-sm">{claim.id}</span>
+                          <div className={`w-2 h-2 rounded-full ${getStatusColor(claim.status)}`} />
+                        </div>
+                        <p className="text-xs text-muted-foreground">{claim.provider}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-medium text-sm">AED {claim.amount.toLocaleString()}</div>
+                        <div className={`text-xs ${getRiskColor(claim.riskScore)}`}>
+                          Risk: {claim.riskScore}/10
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="agents" className="space-y-4">
